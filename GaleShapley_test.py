@@ -10,11 +10,10 @@ class TestGaleShapley(unittest.TestCase):
 
             self.test_data = json.load(file)['GaleShapley']
 
-    def test_student_optimal_from_file(self):
+    def test_Gale_Shapley_json(self):
         
-        for case in self.test_data:
-            i = 0
-            with self.subTest(msg= f"Test n {i}"):
+        for i,case in enumerate(self.test_data):
+            with self.subTest(msg= f"Gale Shapley Test n° {i}"):
                 
                 etu = case["etu"]
                 spe = case["spe"]
@@ -28,7 +27,6 @@ class TestGaleShapley(unittest.TestCase):
                 
                 self.assertEqual(exp_etu, res_etu)
                 self.assertEqual(exp_spe, res_spe)
-                i+=1
 
 class TestUnstablePairs(unittest.TestCase):
 
@@ -38,11 +36,10 @@ class TestUnstablePairs(unittest.TestCase):
 
             self.test_data = json.load(file)['UnstablePairs']
 
-    def test_student_optimal_from_file(self):
+    def test_unstable_pairs(self):
         
-        for case in self.test_data:
-            i = 0
-            with self.subTest(msg= f"Test n {i}"):
+        for i,case in enumerate(self.test_data):
+            with self.subTest(msg= f"Unstable Pairs n°{i}"):
                 
                 etu = case["etu"]
                 spe = case["spe"]
@@ -53,7 +50,6 @@ class TestUnstablePairs(unittest.TestCase):
                 unstable = GaleShapley.paires_instables(spe, etu, affec)
                 
                 self.assertEqual(exp_res, unstable)
-                i+=1
 
 if __name__ == '__main__':
     unittest.main()
