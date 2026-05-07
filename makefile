@@ -1,6 +1,4 @@
 test:
 	python -m unittest -v GaleShapley_test.py
-rapport:
-	pdflatex rapport
 clean:
-	rm *.aux *.out *.log *.fls *.fdb_latexmk *.synctex.gz
+	rm *.aux *.out *.log *.fls *.fdb_latexmk *.synctex.gz *.bbl *.toc *.blg

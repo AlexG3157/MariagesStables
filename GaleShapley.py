@@ -33,7 +33,21 @@ def pref_spe():
 
     return res, cap
 
-def GaleShapleyCoteParcours(etu = None, spe = None, cap = None):
+def matrice_de_rangs(M):
+    """
+    Transforme la matrice des préférences en une matrice des rangs.
+    """
+
+    res = [[0]*len(M[0]) for _ in range(len(M))]
+
+    for i in range(len(M)):
+        for j in range(len(M[0])):
+            res[i][M[i][j]] = j
+    
+    return res
+
+
+def GaleShapleyCoteParcours(etu = None, spe = None, cap = None, iterations = False):
 
     if etu == None:
         etu = pref_etudiants()
@@ -43,14 +57,18 @@ def GaleShapleyCoteParcours(etu = None, spe = None, cap = None):
 
     procahin_etu = [0]*len(spe)
 
-    pos = [list(np.argsort(etu[i])) for i in range(len(etu))]
+    pos = matrice_de_rangs(etu)
     
     affectations = [(1e8,-1) for _ in range(len(etu))]
     res = [-1]*len(etu)
+
+    it = 0
     while q:
 
         s = q.pop()
         while True:
+            it += 1
+
             etu_prop = spe[s][procahin_etu[s]]
             procahin_etu[s] += 1
 
@@ -69,10 +87,10 @@ def GaleShapleyCoteParcours(etu = None, spe = None, cap = None):
                 res[etu_prop] = s
                 break
     
-
+    if iterations : return res, it
     return res
 
-def GaleShapleyCoteEtudiant(etu = None, spe = None, cap = None):
+def GaleShapleyCoteEtudiant(etu = None, spe = None, cap = None, iterations = False):
 
     if etu == None:
 
@@ -83,18 +101,18 @@ def GaleShapleyCoteEtudiant(etu = None, spe = None, cap = None):
 
     procahin_spe = [0]*len(etu)
 
-    pos = [list(np.argsort(spe[i])) for i in range(len(spe))]
+    pos = matrice_de_rangs(spe)
     
     affectations = [[]for _ in range(len(spe))]
 
     res = [-1]*len(etu)
-    i = 0
+    it = 0
 
     while q:
 
         e = q.pop()
         while True:
-            i +=1
+            it +=1
             spe_prop = etu[e][procahin_spe[e]]
             procahin_spe[e] += 1
 
@@ -111,8 +129,9 @@ def GaleShapleyCoteEtudiant(etu = None, spe = None, cap = None):
                 heapq.heappush(affectations[spe_prop],(-pos[spe_prop][e],e))
                 res[e] = spe_prop
                 break
-
-    return res, i
+    
+    if iterations: return res, it
+    return res
 
 def paires_instables(spe, etu, affectations_etu):
 
@@ -177,8 +196,14 @@ def random_spe(n):
         res.append(list(pref))
 
     return res
-    
-def mesurer_temps_cote_etu(start, stop , step):
+
+def pire_cas_etu(n):
+    return [list(range(n)) for _ in range(n)]
+
+def pire_cas_spe(n):
+    return [list(range(n))[::-1] for _ in range(n)]
+
+def mesurer_temps(start, stop , step, cote_etu = True, pire_cas = False):
 
     temps = []
     iterations = []
@@ -192,12 +217,17 @@ def mesurer_temps_cote_etu(start, stop , step):
 
         for _ in range(10):
 
-
-            etu = random_etu(n)
-            spe = random_spe(n)
+            if pire_cas:
+                etu = pire_cas_etu(n)
+                spe = pire_cas_spe(n)
+            else:
+                etu = random_etu(n)
+                spe = random_spe(n)
             start_t = time.time()
-
-            s, it = GaleShapleyCoteEtudiant(etu, spe, cap)
+            if cote_etu:
+                s, it = GaleShapleyCoteEtudiant(etu, spe, cap, iterations=True)
+            else:
+                s, it = GaleShapleyCoteParcours(etu,spe,cap,iterations=True)
 
             end_t = time.time()
 
@@ -207,13 +237,10 @@ def mesurer_temps_cote_etu(start, stop , step):
         temps.append(temps_n)
         iterations.append(iterations_n)
 
-    t = pd.DataFrame(temps, index=list(range(start, stop, step)))
-    t.to_csv("temps.csv")
+    t_df = pd.DataFrame(temps, index=list(range(start, stop, step)))
 
-    it = pd.DataFrame(iterations, index=list(range(start, stop, step)))
-    it.to_csv("iterations.csv")
-
-#mesurer_temps_cote_etu(10,2000,50)
+    it_df = pd.DataFrame(iterations, index=list(range(start, stop, step)))
+    return t_df, it_df
 
 
 

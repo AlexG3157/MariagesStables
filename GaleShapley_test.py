@@ -22,7 +22,7 @@ class TestGaleShapley(unittest.TestCase):
                 exp_etu = case["res_etu"]
                 exp_spe = case["res_spe"]
 
-                res_etu,i = GaleShapley.GaleShapleyCoteEtudiant(etu,spe,cap)
+                res_etu = GaleShapley.GaleShapleyCoteEtudiant(etu,spe,cap)
                 res_spe = GaleShapley.GaleShapleyCoteParcours(etu, spe, cap)
                 
                 self.assertEqual(exp_etu, res_etu)

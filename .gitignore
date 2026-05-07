@@ -1,6 +1,13 @@
+.vscode
+__pycache__
 *.aux
 *.log
 *.out
 *.toc
-*.pdf
 *.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.toc
+*.bbl
+*.blg
