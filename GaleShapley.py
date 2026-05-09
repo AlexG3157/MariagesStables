@@ -242,7 +242,8 @@ def mesurer_temps(start, stop , step, cote_etu = True, pire_cas = False):
     it_df = pd.DataFrame(iterations, index=list(range(start, stop, step)))
     return t_df, it_df
 
-
+print(GaleShapleyCoteEtudiant())
+print(GaleShapleyCoteParcours())
 
 
 

@@ -130,6 +130,127 @@ un comportement quadratique, confirmant ainsi la borne supérieure théorique de
       \label{fig:pire}
 \end{figure}
 
+
+\section{Programmation Linéaire}
+
+Cette seconde partie du projet explore l'utilisation de la programmation linéaire pour résoudre le problème 
+d'affectation sous différents critères, tels que l'efficacité et l'équité.
+
+Pour quantifier la satisfaction des agents, nous définissons l'utilité par les scores de Borda. Afin de simplifier
+nos calculs, dans nos programmes linéaires, nous utiliserons directement le rang dans la matrice de préférences. Ainsi,
+maximiser l'utilité revient a minimiser le rang. On note $b_{j,i}$ le rang du $i$-ème étudiant dans le $j$-ème parcours,
+et $c_{i,j}$ le rang du $j$-ème parcours dans la liste de préférences du $i$ème étudiant et $C_j$ la capacité du $j$-ème
+parcours.
+
+
+\subsection{Maximisation de l'utilité minimale des étudiants}
+
+Pour garantir une certaine équité, nous cherchons à minimiser le mécontentement de l'étudiant le 
+plus mal loti. Nous introduisons une variable auxiliaire $z$ représentant le rang maximal
+atteint par un étudiant.\\
+\textbf{Variables:}
+\begin{itemize}
+    \item $x_{i,j} \in \{0, 1\}$ : vaut 1 si l'étudiant $i$ est affecté au Master $j$, 0 sinon.
+    \item $z \in \mathbb{N}$ : le rang maximal observé.
+\end{itemize}
+\textbf{Fonction objectif:} $\min z$ \\
+\textbf{Contraintes:}
+\begin{align*}
+    & \sum_{j=1}^{m} x_{i,j} = 1, & \forall i \in \{1, \dots, n\} \\
+    & \sum_{j=1}^{m} c_{i,j} x_{i,j} \le z, & \forall i \in \{1, \dots, n\} \\
+    & \sum_{i=1}^{n} x_{i,j} \le C_j, & \forall j \in \{1, \dots, m\} \\
+\end{align*}
+
+\subsection{Maximisation de l'utilité totale}
+
+Le modèle précédent omettait les préférences des établissements. Nous cherchons désormais à 
+maximiser l'efficacité globale en optimisant la somme des utilités des étudiants et des parcours 
+(approche utilitariste).
+
+\textbf{Variables:}
+\begin{itemize}
+    \item $x_{i,j} \in \{0, 1\}$ : vaut 1 si l'étudiant $i$ est affecté au Master $j$, 0 sinon.
+\end{itemize}
+\textbf{Fonction objectif:} $\min \sum_{i=1}^n \sum_{j=1}^m x_{i,j} (b_{i,j}+c_{i,j})$ \\
+\textbf{Contraintes:}
+\begin{align*}
+    & \sum_{j=1}^{m} x_{i,j} = 1, & \forall i \in \{1, \dots, n\} \\
+    & \sum_{i=1}^{n} x_{i,j} \le C_j, & \forall j \in \{1, \dots, m\} \\
+\end{align*}
+
+
+\subsection{Optimisation sous contrainte de rang}
+
+Cette variante maximise l'utilité totale tout en garantissant à chaque étudiant une affectation 
+parmi ses $k$ premiers vœux. 
+
+\textbf{Variables:}
+\begin{itemize}
+    \item $x_{i,j} \in \{0, 1\}$ : vaut 1 si l'étudiant $i$ est affecté au Master $j$, 0 sinon.
+\end{itemize}
+\textbf{Fonction objectif:} $\min \sum_{i=1}^n \sum_{j=1}^m x_{i,j} (b_{i,j}+c_{i,j})$ \\
+\textbf{Contraintes:}
+\begin{align*}
+    & \sum_{j=1}^{m} x_{i,j} = 1, & \forall i \in \{1, \dots, n\} \\
+    & \sum_{i=1}^{n} x_{i,j} \le C_j, & \forall j \in \{1, \dots, m\} \\
+    & \sum_{j=1}^{m} c_{i,j} x_{i,j} \leq k, & \forall i \in \{1, \dots, n\} \\
+\end{align*}
+
+\section{Analyse comparative}
+
+\begin{table}
+      \footnotesize
+      \centering
+      \begin{tabular}{|c c c c c c|}
+            \hline
+            Étudiant & GS côté étudiants & GS côté parcours & Max min util & Max util totale & Max util totale $k=5$\\
+            \hline \hline
+            0  & 5 & 5 & 9 & 8 & 8 \\
+            1  & 6 & 6 & 6 & 5 & 5 \\
+            2  & 9 & 9 & 2 & 4 & 4 \\
+            3  & 9 & 9 & 9 & 9 & 9 \\
+            4  & 1 & 1 & 1 & 1 & 1 \\
+            5  & 0 & 0 & 4 & 0 & 9 \\
+            6  & 8 & 8 & 7 & 7 & 7 \\
+            7  & 7 & 7 & 0 & 0 & 0 \\
+            8  & 3 & 3 & 5 & 9 & 6 \\
+            9  & 2 & 2 & 8 & 2 & 2 \\
+            10 & 4 & 4 & 3 & 4 & 3 \\
+            11 & 4 & 4 & 4 & 3 & 4 \\
+            12 & 0 & 0 & 0 & 6 & 0\\
+            \hline
+      \end{tabular}
+      \caption{Récapitulatif des affectations par méthode pour chaque étudiant.}
+      \label{tab:aff}
+\end{table}
+
+\begin{table}
+      \centering
+      \footnotesize
+      \begin{tabular}{|c | c c c c c|}
+            \hline
+            Métrique & GS côté étudiants & GS côté parcours & Max min util & Max util totale & Max util totale $k=5$\\
+            \hline \hline
+            Somme des utilités            & 203  & 203   & 178  & 213   & 201 \\
+            Utilité moyenne (étudiants)   & 7.84 & 7.84  & 7.61 & 7.15  & 7.84\\
+            Utilité moyenne (parcours)    & 7.76 & 7.76  & 6.07 & 9.23  & 7.61\\
+            Utilité minimale (étudiants)  & 4    & 4     & 5    & 0     & 5 \\
+            Utilité minimale (parcours)   & 0    & 0     & 0    & 0     &  0 \\
+            Paires instables              & 0    & 0     & 9    & 7     & 5 \\
+            \hline
+      \end{tabular}
+      \caption{Analyse comparative des indicateurs de performance.}
+      \label{tab:ut}
+\end{table}
+
+Afin d'évaluer les différentes méthodes étudiées, nous les avons appliquées au jeu de données fourni. 
+Les affectations obtenues sont consignées dans le Tableau \ref{tab:aff}.
+
+Nous avons analysé ces résultats selon des indicateurs de stabilité (nombre de paires instables),
+ d'équité (utilités maximale et moyenne des étudiants) et d'efficacité (somme totale des utilités). 
+ Le Tableau \ref{tab:ut} synthétise ces mesures, permettant ainsi d'apprécier les compromis entre stabilité, 
+ satisfaction globale et équité propres à chaque modèle.
+
 \bibliographystyle{agsm}
 \bibliography{references}
 
