@@ -97,31 +97,26 @@ version la complexité de $\mathcal{O}(n^2)$.
 
 \begin{figure}
       \centering
-      \includegraphics[width=7cm]{img/temps_moy.png}
-      \includegraphics[width = 7cm]{img/it_moy.png}
-      \caption{Exécution de l'algorithme Gale-Shapley pour des données aléatoires.}
-      \label{fig:moy}
+      \includegraphics[width=7cm]{img/t_fix.png}
+      \includegraphics[width=7cm]{img/it_fix.png}
+      \caption{Exécution de l'algorithme Gale-Shapley avec 10 parcours.}
+      \label{fig:fix}
 \end{figure}
-
 La fiabilité de l'implémentation a été vérifiée par un jeu de tests via la bibliothèque 
 \texttt{unittest}. Divers scénarios d'affectation ont été élaborés manuellement et stockés dans 
 un fichier \texttt{JSON} incluant les résultats attendus. Ces tests couvrent l'algorithme 
 de Gale-Shapley (variantes étudiant et parcours) ainsi que la fonction de détection des paires instables.
 
 Pour confronter les performances observées à la complexité théorique, nous avons mesuré le temps 
-d'exécution et le nombre d'itérations pour des instances allant de 200 à 2000 agents.
+d'exécution et le nombre d'itérations pour des instances allant de 200 à 2000 étudiants. 
 
-Dans un premier temps, l'algorithme a été testé sur des matrices de préférences aléatoires et uniformes. 
-Les résultats dans la Figure \ref{fig:moy} montrent un temps d'exécution quadratique, alors que le nombre 
-d'itérations suit une croissance plus lente. Cette observation est cohérente avec les travaux de \cite{wil72}, 
-qui démontrent que le nombre moyen de propositions est en $\mathcal{O}(n \log n)$ sous l'hypothèse de 
-préférences indépendantes et uniformes. La divergence entre le temps et les itérations s'explique par la 
-phase de pré-calcul, dont la complexité est en $\mathcal{O}(n \times m)$ quel que soit le contenu des préférences.
-
-Dans un second temps, nous avons soumis l'implémentation à un scénario de pire cas (Figure \ref{fig:pire}). 
-Dans cette configuration, le temps de calcul et le nombre d'itérations suivent tous deux 
-un comportement quadratique, confirmant ainsi la borne supérieure théorique de l'algorithme.
-
+\begin{figure}
+      \centering
+      \includegraphics[width=7cm]{img/temps_moy.png}
+      \includegraphics[width = 7cm]{img/it_moy.png}
+      \caption{Exécution de l'algorithme Gale-Shapley pour des données aléatoires.}
+      \label{fig:moy}
+\end{figure}
 \begin{figure}
       \centering
       \includegraphics[width=7cm]{img/temps_pire_cas.png}
@@ -129,6 +124,27 @@ un comportement quadratique, confirmant ainsi la borne supérieure théorique de
       \caption{Exécution de l'algorithme Gale-Shapley avec des données forçant le pire cas.}
       \label{fig:pire}
 \end{figure}
+
+L'algorithme a d'abord été évalué sur des matrices de préférences aléatoires et uniformes. 
+En fixant initialement le nombre de parcours à $m=10$, nous observons que le temps d'exécution 
+et le nombre d'itérations adoptent un comportement quasi-linéaire (Figure \ref{fig:fix}). 
+Ce résultat est cohérent avec la complexité théorique en $\mathcal{O}(n \times m \log k)$, 
+qui devient $\mathcal{O}(n \log n)$ lorsque $m$ est constante.  
+
+Afin d'étudier le comportement asymptotique de l'algorithme, nous avons ensuite fait varier 
+simultanément le nombre d'étudiants et de parcours en fixant $m=n$. Les résultats présentés en 
+Figure \ref{fig:moy} confirment un temps d'exécution quadratique. Toutefois, le nombre 
+d'itérations croît plus lentement que prévu. Cette observation corrobore les travaux de \cite{wil72}, 
+qui démontrent que, sous l'hypothèse de préférences indépendantes et uniformes, le nombre 
+moyen de propositions est en $\mathcal{O}(n \log n)$. La divergence observée entre le temps 
+d'exécution et le nombre d'itérations s'explique par la phase de pré-calcul des rangs, dont 
+la complexité reste structurellement en $\mathcal{O}(n \times m)$ indépendamment de la 
+distribution des préférences.  
+
+Finalement, nous avons soumis l'implémentation à un scénario de pire cas (Figure \ref{fig:pire}). 
+Dans cette configuration, le temps de calcul et le nombre d'itérations suivent tous deux 
+un comportement quadratique, confirmant ainsi la borne supérieure théorique de l'algorithme.
+
 
 
 \section{Programmation Linéaire}
@@ -178,7 +194,6 @@ maximiser l'efficacité globale en optimisant la somme des utilités des étudia
     & \sum_{i=1}^{n} x_{i,j} \le C_j, & \forall j \in \{1, \dots, m\} \\
 \end{align*}
 
-
 \subsection{Optimisation sous contrainte de rang}
 
 Cette variante maximise l'utilité totale tout en garantissant à chaque étudiant une affectation 
@@ -195,6 +210,8 @@ parmi ses $k$ premiers vœux.
     & \sum_{i=1}^{n} x_{i,j} \le C_j, & \forall j \in \{1, \dots, m\} \\
     & \sum_{j=1}^{m} c_{i,j} x_{i,j} \leq k, & \forall i \in \{1, \dots, n\} \\
 \end{align*}
+
+Dans nos tests, cette affectation était possible uniquement pour les $k\geq 5$
 
 \section{Analyse comparative}
 
@@ -247,9 +264,17 @@ Afin d'évaluer les différentes méthodes étudiées, nous les avons appliquée
 Les affectations obtenues sont consignées dans le Tableau \ref{tab:aff}.
 
 Nous avons analysé ces résultats selon des indicateurs de stabilité (nombre de paires instables),
- d'équité (utilités maximale et moyenne des étudiants) et d'efficacité (somme totale des utilités). 
- Le Tableau \ref{tab:ut} synthétise ces mesures, permettant ainsi d'apprécier les compromis entre stabilité, 
- satisfaction globale et équité propres à chaque modèle.
+d'équité (utilité minimale des étudiants) et d'efficacité (somme totale des utilités). 
+Le Tableau \ref{tab:ut} synthétise ces mesures, permettant ainsi d'apprécier les compromis entre stabilité, 
+satisfaction globale et équité propres à chaque modèle.
+
+Nous pouvons constater que les deux variantes de l'algorithme de Gale-Shapley aboutissent à la même affectation, 
+démontrant que le mariage stable est unique pour cette instance. Le programme linéaire maximisant l'utilité totale 
+atteint la meilleure efficacité globale au détriment de la stabilité et de l'équité, puisqu'au moins un étudiant 
+obtient son pire choix. À l'inverse, l'approche égalitariste protège les étudiants les plus défavorisés mais 
+s'accompagne d'une chute de l'efficacité et de la plus forte instabilité. Dans ce contexte, l'optimisation sous 
+contrainte de rang se révèle être un excellent compromis. Elle garantit un niveau de satisfaction minimal et limite 
+les paires instables tout en offrant une efficacité globale presque équivalente à celle du mariage stable.
 
 \bibliographystyle{agsm}
 \bibliography{references}

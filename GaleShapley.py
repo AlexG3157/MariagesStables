@@ -173,11 +173,23 @@ def paires_instables(spe, etu, affectations_etu):
 
 ## TME 2
 
-def random_etu(n):
+def random_etu(n,m):
     
     res = []
     
     for _ in range(n):
+        
+        pref = np.arange(m)
+        np.random.shuffle(pref)
+        res.append(list(pref))
+
+    return res
+
+def random_spe(n,m):
+    
+    res = []
+    
+    for _ in range(m):
         
         pref = np.arange(n)
         np.random.shuffle(pref)
@@ -185,32 +197,23 @@ def random_etu(n):
 
     return res
 
-def random_spe(n):
-    
-    res = []
-    
-    for _ in range(n):
-        
-        pref = np.arange(n)
-        np.random.shuffle(pref)
-        res.append(list(pref))
+def pire_cas_etu(n,m):
+    return [list(range(m)) for _ in range(n)]
 
-    return res
+def pire_cas_spe(n,m):
+    return [list(range(n))[::-1] for _ in range(m)]
 
-def pire_cas_etu(n):
-    return [list(range(n)) for _ in range(n)]
-
-def pire_cas_spe(n):
-    return [list(range(n))[::-1] for _ in range(n)]
-
-def mesurer_temps(start, stop , step, cote_etu = True, pire_cas = False):
+def mesurer_temps(start, stop , step, cote_etu = True, pire_cas = False, m_fixed = False):
 
     temps = []
     iterations = []
 
     for n in range(start, stop, step):
-        
-        cap = [1]*n
+
+        m = 10 if m_fixed else n
+
+        # On suppose n multiple de m        
+        cap = [int(n/m)]*n
 
         temps_n = []
         iterations_n = []
@@ -218,11 +221,11 @@ def mesurer_temps(start, stop , step, cote_etu = True, pire_cas = False):
         for _ in range(10):
 
             if pire_cas:
-                etu = pire_cas_etu(n)
-                spe = pire_cas_spe(n)
+                etu = pire_cas_etu(n,m)
+                spe = pire_cas_spe(n,m)
             else:
-                etu = random_etu(n)
-                spe = random_spe(n)
+                etu = random_etu(n,m)
+                spe = random_spe(n,m)
             start_t = time.time()
             if cote_etu:
                 s, it = GaleShapleyCoteEtudiant(etu, spe, cap, iterations=True)
@@ -242,8 +245,6 @@ def mesurer_temps(start, stop , step, cote_etu = True, pire_cas = False):
     it_df = pd.DataFrame(iterations, index=list(range(start, stop, step)))
     return t_df, it_df
 
-print(GaleShapleyCoteEtudiant())
-print(GaleShapleyCoteParcours())
 
 
 
